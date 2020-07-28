@@ -13,6 +13,6 @@ CUDA_VISIBLE_DEVICES=$gpu python -u main.py --model ${modelname} \
 --vocab $datapath --vocab_size 40000 --load_vocab --smoothing 0.1 --share_embed --share_vocab --beam_size 4 \
 --params user --lr 1.0 --init standard --enc_dp 0.5 --dec_dp 0.5 --input_drop_ratio 0.5 \
 --n_layers 4 --n_heads 4 --d_model 128 --d_hidden 256 \
---max_len 100 --eval_every 2500 --save_every 5000 --maximum_steps 80000 >${modelname}.train 2>&1
+--max_len 100 --eval_every 2000 --save_every 5000 --maximum_steps 80000 >${modelname}.train 2>&1
 
 bash test.sh $modelname $tgt $gpu
