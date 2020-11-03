@@ -115,13 +115,8 @@ def beam_search(args, model, src, src_mask, initid, eosid, *objs):
         hiddens[:, t, 0] = model.tgt_embed[0](input) + allposition[:, t]
         for l in range(args.n_layers):
             # B H
-            if l < args.n_layers - args.n_objlayers:
-                hiddens[:, t, l + 1] = model.decoder.layers[l].search(hiddens[:, t:t + 1, l], hiddens[:, :t + 1, l],
+            hiddens[:, t, l + 1] = model.decoder.layers[l].search(hiddens[:, t:t + 1, l], hiddens[:, :t + 1, l],
                                                                       encoding, src_mask).view(-1, H)
-            else:
-                hiddens[:, t, l + 1] = model.decoder.layers[l].search(hiddens[:, t:t + 1, l],
-                                                                      hiddens[:, :t + 1, l],
-                                                                      encoding, src_mask, encoding_obj, obj_mask).view(-1, H)
         # B V
         log_prob = model.generate(hiddens[:, t, -1])
         if t < min_len:

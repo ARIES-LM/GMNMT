@@ -40,7 +40,7 @@ class GATEncoder(nn.Module):
         self.mhatt_x2o = clone(Linear(d_model * 2, d_model), layer)
         self.mhatt_o2x = clone(Linear(d_model * 2, d_model), layer)
         self.xgate = clone(SublayerConnectionv2(d_model, dropout), layer)
-        self.ogate = clone(SublayerConnectionv2(d_model, imgdp), layer)
+        self.ogate = clone(SublayerConnectionv2(d_model, dropout), layer)
 
     def forward(self, x, mask, *objs):
         #              B 1 O     B T O
@@ -417,24 +417,3 @@ class EncoderDecoder(nn.Module):
     def addposition(self, x):
         return self.tgt_embed[1](x)
 
-
-    def __init__(self, generator, criterion, optwrapper):
-        self.criterion = criterion
-        self.optwrapper = optwrapper
-        self.generator = generator
-
-    def __call__(self, dec_outputs, truth, norm):
-        hypothesis = self.generator(dec_outputs)
-        loss = self.criterion(hypothesis.contiguous().view(-1, hypothesis.size(-1)),
-                              truth.contiguous().view(-1))
-        # loss = self.criterion(hypothesis,
-        #                       truth)
-        # for transformer, norm is n_tokens
-        norm = norm.float()
-        loss = loss / norm
-
-        loss = loss / self.optwrapper.delay_update
-        loss.backward()
-        self.optwrapper.step()
-
-        return loss.item() * self.optwrapper.delay_update
